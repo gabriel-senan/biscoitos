@@ -111,11 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <div class="header">
-        <div class="logo">🥠 Biscoitos da Sorte</div>
-    </div>
-
-    <div class="container" style="padding-top: 40px;">
+    <div class="container" style="padding-top: 80px;">
         <div style="text-align: center; margin-bottom: 40px;">
             <div style="font-size: 80px; margin-bottom: 24px;">🥠</div>
             <h1 style="font-size: 28px; margin-bottom: 8px;">Sua sorte espera</h1>
