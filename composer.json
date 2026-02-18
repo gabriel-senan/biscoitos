@@ -1,0 +1,16 @@
+{
+    "name": "biscoitos-sorte/micro-saas",
+    "description": "Micro SaaS de Biscoitos da Sorte com mensagens únicas",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "files": [
+            "config/config.php",
+            "config/constants.php",
+            "includes/security.php"
+        ]
+    }
+}

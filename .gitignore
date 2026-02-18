@@ -1,0 +1,47 @@
+# Arquivos de ambiente
+.env
+config/config.local.php
+
+# Documentação (manter apenas no repositório)
+docs/
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# Cache
+cache/*
+!cache/.gitkeep
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+!uploads/perfil/.gitkeep
+
+# Banco de dados local
+database.sqlite
+*.db
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependências
+vendor/
+node_modules/
+
+# Temporários
+tmp/*
+!tmp/.gitkeep
+
+# Backups
+*.backup
+*.bak
+backup/

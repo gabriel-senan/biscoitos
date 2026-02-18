@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /logs/
+Disallow: /cache/
+
+Sitemap: https://seusite.com.br/sitemap.xml
