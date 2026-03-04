@@ -66,7 +66,11 @@ INSERT OR IGNORE INTO categorias (id, nome, descricao, icone, cor) VALUES
 
 -- Inserir usuário admin padrão (senha: admin123)
 INSERT OR IGNORE INTO usuarios (id, nome_completo, email, senha, is_admin) VALUES
-(1, 'Administrador', 'admin@biscoitos.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1);
+(1, 'Administrador', 'admin@biscoitos.com', '$2y$10$ebHzVnI4HKDZacKGnpfzje3crZI6qCZMizrUitVo/UosBH5eTFJVq', 1);
+
+-- Inserir usuário de teste (senha: 123456)
+INSERT OR IGNORE INTO usuarios (id, nome_completo, email, senha, is_admin) VALUES
+(2, 'Usuário Teste', 'teste@biscoitos.com', '$2y$10$ebHzVnI4HKDZacKGnpfzje3crZI6qCZMizrUitVo/UosBH5eTFJVq', 0);
 
 -- Inserir sortes de exemplo
 INSERT OR IGNORE INTO sortes (categoria_id, mensagem) VALUES

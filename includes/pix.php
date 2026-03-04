@@ -20,10 +20,14 @@ function gerarCodigoPix($valor, $chave, $beneficiario, $cidade, $txid = null) {
     // Payload Format Indicator
     $payload = '000201'; // Versão do payload
     
-    // Merchant Account Information
-    $payload .= '26' . strlen('0014br.gov.bcb.pix' . '01' . strlen($chave) . $chave);
-    $payload .= '0014br.gov.bcb.pix';
-    $payload .= '01' . strlen($chave) . $chave;
+    // Point of Initiation Method (12 = estático)
+    $payload .= '010212';
+    
+    // Merchant Account Information (ID 26 = PIX)
+    $gui = '0014br.gov.bcb.pix';
+    $key = '01' . str_pad(strlen($chave), 2, '0', STR_PAD_LEFT) . $chave;
+    $merchantAccount = $gui . $key;
+    $payload .= '26' . str_pad(strlen($merchantAccount), 2, '0', STR_PAD_LEFT) . $merchantAccount;
     
     // Merchant Category Code
     $payload .= '52040000'; // 0000 = não especificado
@@ -33,25 +37,25 @@ function gerarCodigoPix($valor, $chave, $beneficiario, $cidade, $txid = null) {
     
     // Transaction Amount
     $valorFormatado = number_format($valor, 2, '.', '');
-    $payload .= '54' . strlen($valorFormatado) . $valorFormatado;
+    $payload .= '54' . str_pad(strlen($valorFormatado), 2, '0', STR_PAD_LEFT) . $valorFormatado;
     
     // Country Code
     $payload .= '5802BR';
     
     // Merchant Name
-    $payload .= '59' . strlen($beneficiario) . $beneficiario;
+    $payload .= '59' . str_pad(strlen($beneficiario), 2, '0', STR_PAD_LEFT) . $beneficiario;
     
     // Merchant City
-    $payload .= '60' . strlen($cidade) . $cidade;
+    $payload .= '60' . str_pad(strlen($cidade), 2, '0', STR_PAD_LEFT) . $cidade;
     
-    // Additional Data Field Template
-    $payload .= '62' . strlen('05' . strlen($txid) . $txid);
-    $payload .= '05' . strlen($txid) . $txid;
+    // Additional Data Field Template (ID 62)
+    $txidField = '05' . str_pad(strlen($txid), 2, '0', STR_PAD_LEFT) . $txid;
+    $payload .= '62' . str_pad(strlen($txidField), 2, '0', STR_PAD_LEFT) . $txidField;
     
     // CRC16
     $payload .= '6304';
     $crc = calcularCRC16($payload);
-    $payload .= $crc;
+    $payload .= strtoupper(str_pad($crc, 4, '0', STR_PAD_LEFT));
     
     return $payload;
 }
@@ -76,7 +80,7 @@ function calcularCRC16($payload) {
     }
     
     $crc = $crc & 0xFFFF;
-    return strtoupper(dechex($crc));
+    return strtoupper(str_pad(dechex($crc), 4, '0', STR_PAD_LEFT));
 }
 
 /**

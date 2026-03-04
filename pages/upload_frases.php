@@ -3,7 +3,7 @@
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -31,12 +31,17 @@ try {
     $frases_inseridas = 0;
     $erros = [];
     
+    // Log de debug
+    error_log("Upload iniciado - Arquivo: {$file['name']}, Tamanho: {$file['size']}, Extensão: $extension");
+    
     // Buscar IDs das categorias
     $stmt = $pdo->query("SELECT id, nome FROM categorias");
     $categorias = [];
     while ($row = $stmt->fetch()) {
         $categorias[strtolower($row['nome'])] = $row['id'];
     }
+    
+    error_log("Categorias carregadas: " . implode(', ', array_keys($categorias)));
     
     if ($extension === 'csv') {
         // Processar CSV

@@ -29,8 +29,8 @@ define('METODO_PIX', 'pix');
 define('METODO_CARTAO', 'cartao');
 define('METODO_APPLE', 'apple');
 
-// Configurações PIX
-define('PIX_CHAVE', '0f3d564d-cfd3-43c6-b03d-6dfa49804fdb'); // Altere para sua chave PIX
-define('PIX_TIPO_CHAVE', 'aleatoria'); // Tipos: email, cpf, cnpj, telefone, aleatoria
-define('PIX_BENEFICIARIO', 'Biscoitos da Sorte'); // Seu nome ou nome da empresa
-define('PIX_CIDADE', 'SAO PAULO'); // Sua cidade (sem acentos)
+// Configurações PIX (carregadas do .env)
+define('PIX_CHAVE', getenv('PIX_KEY') ?: '+5511986411335');
+define('PIX_TIPO_CHAVE', getenv('PIX_KEY_TYPE') ?: 'telefone');
+define('PIX_BENEFICIARIO', getenv('PIX_MERCHANT_NAME') ?: 'Biscoitos da Sorte');
+define('PIX_CIDADE', getenv('PIX_MERCHANT_CITY') ?: 'SAO PAULO');
