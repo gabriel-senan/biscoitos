@@ -4,6 +4,23 @@ Sistema web de biscoitos da sorte digitais com mensagens personalizadas por cate
 
 ## Início Rápido
 
+### 🐳 Docker (Recomendado para Produção)
+
+```bash
+# 1. Configurar ambiente
+cp .env.example .env
+nano .env  # Edite BASE_URL e PIX_KEY
+
+# 2. Deploy automático
+chmod +x deploy.sh
+./deploy.sh
+
+# 3. Acessar
+http://seu-ip ou http://seu-dominio.com
+```
+
+📖 **Guia completo:** [DEPLOY.md](DEPLOY.md) | [QUICK-START.md](QUICK-START.md)
+
 ### Desenvolvimento Local
 
 ```bash
@@ -180,7 +197,56 @@ Senhas devem ter:
 - Bloqueio automático após exceder limite
 - Reset após login bem-sucedido
 
-## Deploy em Produção
+## 🐳 Deploy com Docker
+
+### Deploy Rápido (VPS)
+
+```bash
+# 1. Instalar Docker
+curl -fsSL https://get.docker.com | sh
+
+# 2. Configurar
+cp .env.example .env
+nano .env
+
+# 3. Deploy
+./deploy.sh
+```
+
+### Comandos Docker
+
+```bash
+# Usando Makefile (recomendado)
+make up        # Iniciar
+make down      # Parar
+make logs      # Ver logs
+make backup    # Backup
+make deploy    # Deploy completo
+
+# Usando Docker Compose
+docker compose up -d      # Iniciar
+docker compose down       # Parar
+docker compose logs -f    # Ver logs
+docker compose restart    # Reiniciar
+```
+
+### Estrutura Docker
+
+```
+docker/
+├── Dockerfile           # Imagem PHP + Nginx
+├── docker-compose.yml   # Orquestração
+├── nginx.conf          # Configuração Nginx
+├── default.conf        # Virtual host
+├── supervisord.conf    # Gerenciador de processos
+└── docker-entrypoint.sh # Script de inicialização
+```
+
+📖 **Documentação completa:** [DEPLOY.md](DEPLOY.md)
+
+---
+
+## Deploy Manual (Sem Docker)
 
 ### Checklist de Segurança
 

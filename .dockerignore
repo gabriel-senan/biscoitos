@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.vscode
+README.md
+docs/
+*.md
+docker-compose.yml
+Dockerfile
+.dockerignore
+historico-urls.txt
+monitorar-url.sh
+install-creditos.sh
+test-*.php
+nginx-biscoitos.conf

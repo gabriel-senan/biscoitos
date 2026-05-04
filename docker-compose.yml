@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: biscoitos-sorte
+    restart: unless-stopped
+    ports:
+      - "8080:80"  # Porta 8080 externa, 80 interna
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_NAME=${DB_NAME:-biscoitos_sorte}
+      - DB_USER=${DB_USER:-biscoitos_user}
+      - DB_PASS=${DB_PASS}
+      - BASE_URL=${BASE_URL}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - PIX_MERCHANT_NAME=${PIX_MERCHANT_NAME}
+      - PIX_MERCHANT_CITY=${PIX_MERCHANT_CITY}
+      - PIX_KEY_TYPE=${PIX_KEY_TYPE}
+      - PIX_KEY=${PIX_KEY}
+      - PIX_AMOUNT=${PIX_AMOUNT}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+    volumes:
+      - ./database.sqlite:/var/www/html/database.sqlite
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
+    networks:
+      - biscoitos-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health-check.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  biscoitos-network:
+    driver: bridge

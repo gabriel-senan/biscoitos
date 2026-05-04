@@ -1,0 +1,10 @@
+version: '3.8'
+
+# Configuração para produção com Nginx proxy reverso
+# Use: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    ports:
+      - "127.0.0.1:8080:80"  # Apenas localhost, Nginx fará proxy
+    restart: always
