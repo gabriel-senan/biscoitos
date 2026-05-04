@@ -44,6 +44,6 @@ date_default_timezone_set('America/Sao_Paulo');
 if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.cookie_httponly', 1);
     ini_set('session.use_only_cookies', 1);
-    ini_set('session.cookie_secure', ENVIRONMENT === 'production' ? 1 : 0);
+    ini_set('session.cookie_secure', 0); // Temporário: desabilitado para debug
     ini_set('session.cookie_samesite', 'Lax');
 }
