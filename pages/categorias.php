@@ -1,6 +1,8 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/creditos.php';
+require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -94,6 +96,7 @@ unset($_SESSION['mensagem_sucesso'], $_SESSION['mensagem_erro']);
         </div>
 
         <form action="abrir_sorte.php" method="POST" id="categoryForm">
+            <?= csrf_field() ?>
             <?php foreach ($categorias as $categoria): ?>
                 <label class="category-card" onclick="selectCategory(this, <?= $categoria['id'] ?>)">
                     <div class="category-icon" style="background: <?= htmlspecialchars($categoria['cor']) ?>20;">

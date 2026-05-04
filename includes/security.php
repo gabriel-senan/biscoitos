@@ -23,6 +23,38 @@ function verify_csrf_token($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
+function csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . generate_csrf_token() . '">';
+}
+
+function require_csrf() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (!isset($_POST['csrf_token']) || !verify_csrf_token($_POST['csrf_token'])) {
+            log_activity("Tentativa de CSRF detectada", "warning");
+            die('Token CSRF inválido. Recarregue a página e tente novamente.');
+        }
+    }
+}
+
+function validate_password_strength($password) {
+    $errors = [];
+    
+    if (strlen($password) < 8) {
+        $errors[] = 'Senha deve ter no mínimo 8 caracteres';
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = 'Senha deve conter pelo menos uma letra maiúscula';
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = 'Senha deve conter pelo menos uma letra minúscula';
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = 'Senha deve conter pelo menos um número';
+    }
+    
+    return empty($errors) ? true : $errors;
+}
+
 function check_auth() {
     if (!isset($_SESSION['usuario_id'])) {
         header('Location: ' . BASE_URL . '/pages/auth.php');

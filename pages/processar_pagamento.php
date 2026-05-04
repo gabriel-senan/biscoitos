@@ -1,5 +1,7 @@
 <?php
 require_once '../config/database.php';
+require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

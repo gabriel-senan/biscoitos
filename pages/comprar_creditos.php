@@ -2,6 +2,8 @@
 require_once '../config/database.php';
 require_once '../config/constants.php';
 require_once '../includes/creditos.php';
+require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -76,6 +78,7 @@ $pacotes = [
                     </div>
                     
                     <form action="processar_compra_creditos.php" method="POST" style="margin: 0;">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="pacote_creditos" value="<?= $pacote['creditos'] ?>">
                         <input type="hidden" name="pacote_bonus" value="<?= $pacote['bonus'] ?>">
                         <input type="hidden" name="pacote_valor" value="<?= $pacote['valor'] ?>">

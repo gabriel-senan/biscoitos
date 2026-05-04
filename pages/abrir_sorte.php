@@ -1,6 +1,8 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/creditos.php';
+require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -10,6 +12,9 @@ if (!isset($_SESSION['usuario_id']) || !isset($_POST['categoria_id'])) {
     header('Location: categorias.php');
     exit();
 }
+
+// Validar CSRF
+require_csrf();
 
 $usuario_id = $_SESSION['usuario_id'];
 $categoria_id = (int)$_POST['categoria_id'];

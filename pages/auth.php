@@ -1,6 +1,7 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 // Iniciar sessão após carregar configurações
 if (session_status() === PHP_SESSION_NONE) {
@@ -26,27 +27,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
             $error = 'Todos os campos são obrigatórios';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'Email inválido';
-        } elseif (strlen($senha) < 6) {
-            $error = 'A senha deve ter no mínimo 6 caracteres';
         } else {
-            $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ?");
-            $stmt->execute([$email]);
-            
-            if ($stmt->fetch()) {
-                $error = 'Este email já está cadastrado';
+            // Validar força da senha
+            $senha_validation = validate_password_strength($senha);
+            if ($senha_validation !== true) {
+                $error = implode('. ', $senha_validation);
             } else {
-                $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("INSERT INTO usuarios (nome_completo, email, senha) VALUES (?, ?, ?)");
+                $stmt = $pdo->prepare("SELECT id FROM usuarios WHERE email = ?");
+                $stmt->execute([$email]);
                 
-                if ($stmt->execute([$nome, $email, $senha_hash])) {
-                    $_SESSION['usuario_id'] = $pdo->lastInsertId();
-                    $_SESSION['usuario_nome'] = $nome;
-                    session_regenerate_id(true);
-                    log_activity("Novo usuário registrado: $email");
-                    header('Location: categorias.php');
-                    exit();
+                if ($stmt->fetch()) {
+                    $error = 'Este email já está cadastrado';
                 } else {
-                    $error = 'Erro ao criar conta';
+                    $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+                    $stmt = $pdo->prepare("INSERT INTO usuarios (nome_completo, email, senha) VALUES (?, ?, ?)");
+                    
+                    if ($stmt->execute([$nome, $email, $senha_hash])) {
+                        $_SESSION['usuario_id'] = $pdo->lastInsertId();
+                        $_SESSION['usuario_nome'] = $nome;
+                        session_regenerate_id(true);
+                        log_activity("Novo usuário registrado: $email");
+                        header('Location: categorias.php');
+                        exit();
+                    } else {
+                        $error = 'Erro ao criar conta';
+                    }
                 }
             }
         }
@@ -55,7 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
         $senha = $_POST['senha'] ?? '';
         $manter_conectado = isset($_POST['manter_conectado']);
         
-        if (empty($email) || empty($senha)) {
+        // Rate limiting - máximo 5 tentativas em 5 minutos
+        $ip = $_SERVER['REMOTE_ADDR'];
+        if (!rate_limit('login_' . $ip, 5, 300)) {
+            $error = 'Muitas tentativas de login. Aguarde 5 minutos e tente novamente.';
+            log_activity("Rate limit excedido no login - IP: $ip", "warning");
+        } elseif (empty($email) || empty($senha)) {
             $error = 'Email e senha são obrigatórios';
         } else {
             try {
@@ -83,6 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && empty($error)) {
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $_SESSION['usuario_nome'] = $usuario['nome_completo'];
                 $_SESSION['is_admin'] = isset($usuario['is_admin']) ? (int)$usuario['is_admin'] : 0;
+                
+                // Limpar rate limit após login bem-sucedido
+                $ip = $_SERVER['REMOTE_ADDR'];
+                unset($_SESSION['rate_limit']['login_' . $ip]);
                 
                 // Se manter conectado, estender tempo da sessão
                 if ($manter_conectado) {

@@ -1,6 +1,8 @@
 <?php
 require_once '../config/database.php';
 require_once '../includes/creditos.php';
+require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -98,15 +100,38 @@ $mes_ano = str_replace(array_keys($meses_pt), array_values($meses_pt), $mes_ano)
     </div>
 
     <div class="container" style="padding-top: 40px;">
-        <?php if (isset($_GET['success'])): ?>
+        <?php 
+        // Mensagens de erro seguras
+        $error_messages = [
+            'invalid_email' => 'Email inválido',
+            'email_exists' => 'Email já cadastrado',
+            'upload_failed' => 'Erro no upload da foto',
+            'password_mismatch' => 'Senhas não conferem',
+            'weak_password' => 'Senha muito fraca',
+            'update_failed' => 'Erro ao atualizar perfil'
+        ];
+        
+        $success_messages = [
+            'profile_updated' => 'Perfil atualizado com sucesso!',
+            'photo_updated' => 'Foto atualizada com sucesso!'
+        ];
+        
+        $error_code = $_GET['error'] ?? '';
+        $success_code = $_GET['success'] ?? '';
+        
+        $error_msg = $error_messages[$error_code] ?? '';
+        $success_msg = $success_messages[$success_code] ?? ($success_code ? 'Perfil atualizado!' : '');
+        ?>
+        
+        <?php if ($success_msg): ?>
             <div style="background: #E8F5E9; color: #2E7D32; padding: 8px; border-radius: 8px; margin-bottom: 12px; text-align: center; font-size: 13px;">
-                ✅ Perfil atualizado!
+                <?= htmlspecialchars($success_msg) ?>
             </div>
         <?php endif; ?>
         
-        <?php if (isset($_GET['error'])): ?>
+        <?php if ($error_msg): ?>
             <div style="background: #FFE5E5; color: #D32F2F; padding: 8px; border-radius: 8px; margin-bottom: 12px; text-align: center; font-size: 13px;">
-                ❌ <?= htmlspecialchars($_GET['error']) ?>
+                <?= htmlspecialchars($error_msg) ?>
             </div>
         <?php endif; ?>
 

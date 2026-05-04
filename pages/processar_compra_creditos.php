@@ -3,6 +3,8 @@ require_once '../config/database.php';
 require_once '../config/constants.php';
 require_once '../includes/pix.php';
 require_once '../includes/creditos.php';
+require_once '../includes/security.php';
+require_once '../includes/security_headers.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -12,6 +14,9 @@ if (!isset($_SESSION['usuario_id']) || !isset($_POST['pacote_creditos'])) {
     header('Location: comprar_creditos.php');
     exit();
 }
+
+// Validar CSRF
+require_csrf();
 
 $usuario_id = $_SESSION['usuario_id'];
 $creditos = (int)$_POST['pacote_creditos'];
@@ -106,6 +111,7 @@ $codigoPix = gerarCodigoPix($valor, PIX_CHAVE, PIX_BENEFICIARIO, PIX_CIDADE, $tx
                 </div>
 
                 <form action="confirmar_compra_creditos.php" method="POST" id="paymentForm">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="creditos" value="<?= $creditos ?>">
                     <input type="hidden" name="bonus" value="<?= $bonus ?>">
                     <input type="hidden" name="valor" value="<?= $valor ?>">

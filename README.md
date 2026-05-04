@@ -148,27 +148,80 @@ BASE_URL=http://localhost:8000
 
 ## Segurança
 
-- Proteção contra SQL Injection (prepared statements)
-- Proteção contra XSS (htmlspecialchars)
-- Tokens CSRF
-- Senhas com bcrypt
-- Rate limiting
-- Validação de sessões
-- Logs de atividade
-- Sanitização de uploads
+### Proteções Implementadas
+
+- **SQL Injection:** Prepared statements em todas as queries
+- **XSS:** htmlspecialchars em todos os outputs + Content Security Policy
+- **CSRF:** Tokens de validação em todos os formulários
+- **Upload Seguro:** Validação de MIME type real, extensão e conteúdo
+- **Brute Force:** Rate limiting (5 tentativas em 5 minutos)
+- **Senhas:** bcrypt + política de senha forte (8+ caracteres, maiúscula, minúscula, número)
+- **Session Fixation:** session_regenerate_id após login
+- **Headers de Segurança:** X-Frame-Options, X-Content-Type-Options, CSP, etc.
+- **Logs:** Registro de atividades e tentativas suspeitas
+
+### Arquivos de Segurança
+
+- `includes/security.php` - Funções de segurança
+- `includes/security_headers.php` - Headers HTTP de segurança
+- `.htaccess` - Proteção de arquivos sensíveis
+
+### Política de Senha
+
+Senhas devem ter:
+- Mínimo 8 caracteres
+- Pelo menos 1 letra maiúscula
+- Pelo menos 1 letra minúscula
+- Pelo menos 1 número
+
+### Rate Limiting
+
+- Login: 5 tentativas em 5 minutos por IP
+- Bloqueio automático após exceder limite
+- Reset após login bem-sucedido
 
 ## Deploy em Produção
 
-### Checklist
+### Checklist de Segurança
 
 - [ ] Migrar para MySQL
 - [ ] Configurar PIX real
 - [ ] Habilitar HTTPS
+- [ ] Forçar HTTPS no .htaccess
 - [ ] Configurar .env de produção
-- [ ] Ajustar permissões de arquivos
+- [ ] Ajustar permissões de arquivos (755 para pastas, 644 para arquivos)
+- [ ] Verificar headers de segurança
+- [ ] Testar CSRF em formulários
+- [ ] Testar rate limiting
+- [ ] Testar upload de arquivo
 - [ ] Configurar backup automático
+- [ ] Configurar rotação de logs
 - [ ] Testar fluxo completo
-- [ ] Monitorar logs
+- [ ] Monitorar logs por 24h
+
+### Implementar Headers de Segurança
+
+Os headers já estão implementados em:
+- `pages/abrir_sorte.php`
+- `pages/processar_compra_creditos.php`
+- `pages/confirmar_compra_creditos.php`
+- `pages/upload_foto.php`
+
+Para adicionar em outras páginas, inclua no início:
+```php
+require_once '../includes/security_headers.php';
+```
+
+### Verificar Segurança
+
+```bash
+# Testar headers
+curl -I https://seudominio.com
+
+# Verificar online
+# https://securityheaders.com
+# https://observatory.mozilla.org
+```
 
 ### Passos Detalhados
 
@@ -349,9 +402,10 @@ tar -czf uploads_backup_$(date +%Y%m%d).tar.gz uploads/
 ### Problema: Upload de foto não funciona
 
 **Solução:**
-1. Verificar permissões da pasta uploads/
+1. Verificar permissões da pasta uploads/ (755)
 2. Verificar tamanho máximo de upload no php.ini
 3. Verificar logs de erro
+4. Verificar se arquivo é imagem válida
 
 ### Problema: Erro de conexão com banco
 
@@ -359,6 +413,21 @@ tar -czf uploads_backup_$(date +%Y%m%d).tar.gz uploads/
 1. Verificar credenciais no .env
 2. Verificar se MySQL está rodando
 3. Verificar permissões do usuário do banco
+
+### Problema: Token CSRF inválido
+
+**Solução:**
+1. Limpar cache do navegador
+2. Verificar se sessão está ativa
+3. Recarregar a página
+4. Verificar se csrf_field() está no formulário
+
+### Problema: Rate limiting bloqueando usuário legítimo
+
+**Solução:**
+1. Aguardar 5 minutos
+2. Limpar sessão: `unset($_SESSION['rate_limit'])`
+3. Ajustar limite em `includes/security.php`
 
 ## Suporte
 
@@ -382,9 +451,17 @@ Proprietary - Todos os direitos reservados
 - Sistema de perfil com foto
 - Histórico de transações
 - Design responsivo
+- **Segurança aprimorada:**
+  - Proteção CSRF em todos os formulários
+  - Upload de arquivo seguro com validação completa
+  - Rate limiting no login
+  - Política de senha forte
+  - Headers de segurança (CSP, X-Frame-Options, etc.)
+  - Validação segura de mensagens de erro
 
 ---
 
 **Desenvolvido em:** 2024
 **Versão:** 1.0.0
 **Status:** Produção
+**Nível de Segurança:** Alto
