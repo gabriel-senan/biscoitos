@@ -29,11 +29,15 @@ if (!$sorte) {
     exit();
 }
 
-// Gerar números da sorte aleatórios
+// Gerar números da sorte aleatórios únicos e em ordem crescente
 $numeros = [];
-for ($i = 0; $i < 5; $i++) {
-    $numeros[] = rand(1, 99);
+while (count($numeros) < 5) {
+    $numero = rand(1, 99);
+    if (!in_array($numero, $numeros)) {
+        $numeros[] = $numero;
+    }
 }
+sort($numeros); // Ordenar em ordem crescente
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

@@ -1,5 +1,6 @@
 <?php
 require_once '../config/database.php';
+require_once '../includes/creditos.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -28,6 +29,9 @@ $filtro_categoria = isset($_GET['categoria']) ? (int)$_GET['categoria'] : 0;
 $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE id = ?");
 $stmt->execute([$usuario_id]);
 $usuario = $stmt->fetch();
+
+// Obter saldo de créditos
+$saldo_creditos = obterSaldoCreditos($pdo, $usuario_id);
 
 // Buscar categorias para o filtro
 $categorias = $pdo->query("SELECT * FROM categorias WHERE ativo = 1")->fetchAll();
@@ -105,6 +109,20 @@ $mes_ano = str_replace(array_keys($meses_pt), array_values($meses_pt), $mes_ano)
                 ❌ <?= htmlspecialchars($_GET['error']) ?>
             </div>
         <?php endif; ?>
+
+        <!-- Card de Créditos -->
+        <div class="card" style="background: linear-gradient(135deg, #FF8C42 0%, #FFB366 100%); color: white; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 4px;">Seus Créditos</div>
+                    <div style="font-size: 32px; font-weight: 700;"><?= $saldo_creditos ?></div>
+                    <div style="font-size: 12px; opacity: 0.8;">1 crédito = 1 biscoito</div>
+                </div>
+                <a href="comprar_creditos.php" style="background: white; color: var(--primary); padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    + Comprar
+                </a>
+            </div>
+        </div>
 
         <div style="text-align: center; margin-bottom: 20px;">
             <form id="photoForm" enctype="multipart/form-data" class="photo-upload" style="display: inline-block;">
@@ -200,6 +218,10 @@ $mes_ano = str_replace(array_keys($meses_pt), array_values($meses_pt), $mes_ano)
         <a href="categorias.php" class="mobile-nav-item">
             <span>🥠</span>
             Sortes
+        </a>
+        <a href="comprar_creditos.php" class="mobile-nav-item">
+            <span>💳</span>
+            Créditos
         </a>
         <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
         <a href="../admin/index.php" class="mobile-nav-item">

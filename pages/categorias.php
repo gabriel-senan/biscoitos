@@ -1,5 +1,6 @@
 <?php
 require_once '../config/database.php';
+require_once '../includes/creditos.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -22,11 +23,17 @@ $_SESSION['last_activity'] = time();
 $stmt = $pdo->query("SELECT * FROM categorias WHERE ativo = 1");
 $categorias = $stmt->fetchAll();
 
-// Buscar nome do usuário
+// Buscar nome do usuário e saldo de créditos
 $stmt = $pdo->prepare("SELECT nome_completo FROM usuarios WHERE id = ?");
 $stmt->execute([$_SESSION['usuario_id']]);
 $usuario = $stmt->fetch();
 $primeiro_nome = explode(' ', $usuario['nome_completo'])[0];
+$saldo_creditos = obterSaldoCreditos($pdo, $_SESSION['usuario_id']);
+
+// Mensagens de sucesso/erro
+$mensagem_sucesso = $_SESSION['mensagem_sucesso'] ?? null;
+$mensagem_erro = $_SESSION['mensagem_erro'] ?? null;
+unset($_SESSION['mensagem_sucesso'], $_SESSION['mensagem_erro']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -53,6 +60,32 @@ $primeiro_nome = explode(' ', $usuario['nome_completo'])[0];
     </div>
 
     <div class="container" style="padding-top: 40px;">
+        <?php if ($mensagem_sucesso): ?>
+            <div style="background: #E8F5E9; color: #2E7D32; padding: 16px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 500;">
+                ✅ <?= htmlspecialchars($mensagem_sucesso) ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($mensagem_erro): ?>
+            <div style="background: #FFEBEE; color: #C62828; padding: 16px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-weight: 500;">
+                ❌ <?= htmlspecialchars($mensagem_erro) ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- Saldo de Créditos -->
+        <div class="card" style="background: linear-gradient(135deg, #FF8C42 0%, #FFB366 100%); color: white; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 4px;">Seus Créditos</div>
+                    <div style="font-size: 32px; font-weight: 700;"><?= $saldo_creditos ?></div>
+                    <div style="font-size: 12px; opacity: 0.8;">1 crédito = 1 biscoito</div>
+                </div>
+                <a href="comprar_creditos.php" style="background: white; color: var(--primary); padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    + Comprar
+                </a>
+            </div>
+        </div>
+
         <div style="text-align: center; margin-bottom: 24px;">
             <h1 style="font-size: 32px; margin-bottom: 8px; font-weight: 600; letter-spacing: -0.02em;">Olá, <?= htmlspecialchars($primeiro_nome) ?>! 👋</h1>
             <p style="color: var(--text-light); font-size: 14px; font-weight: 400;">
@@ -60,7 +93,7 @@ $primeiro_nome = explode(' ', $usuario['nome_completo'])[0];
             </p>
         </div>
 
-        <form action="pagamento.php" method="POST" id="categoryForm">
+        <form action="abrir_sorte.php" method="POST" id="categoryForm">
             <?php foreach ($categorias as $categoria): ?>
                 <label class="category-card" onclick="selectCategory(this, <?= $categoria['id'] ?>)">
                     <div class="category-icon" style="background: <?= htmlspecialchars($categoria['cor']) ?>20;">
@@ -74,10 +107,6 @@ $primeiro_nome = explode(' ', $usuario['nome_completo'])[0];
                 </label>
             <?php endforeach; ?>
 
-            <div style="text-align: center; margin: 20px 0;">
-                <div style="font-size: 60px; opacity: 0.8;">🥠</div>
-            </div>
-
             <button type="submit" class="btn btn-primary" id="continueBtn" disabled>
                 Continuar →
             </button>
@@ -89,6 +118,10 @@ $primeiro_nome = explode(' ', $usuario['nome_completo'])[0];
         <a href="categorias.php" class="mobile-nav-item active">
             <span>🥠</span>
             Sortes
+        </a>
+        <a href="comprar_creditos.php" class="mobile-nav-item">
+            <span>💳</span>
+            Créditos
         </a>
         <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1): ?>
         <a href="../admin/index.php" class="mobile-nav-item">
